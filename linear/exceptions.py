@@ -1,0 +1,3 @@
+
+class InconsistentRows(Exception):
+    pass
