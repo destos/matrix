@@ -1,14 +1,19 @@
-from .exceptions import InconsistentRows
+from .exceptions import BadDimensions, InconsistentRows, InvalidMatrix
 
 
 class Matrix(object):
-    """Matrix([0,0],[0,1])"""
+    """
+    eg.
+    Matrix([0,0],[0,1])
+    """
     values = []
+    # m rows
+    # n columns
     mn = (0, 0)
 
     def __init__(self, *args, **kwargs):
         good_length = None
-        if len(args) > 1:
+        if len(args) > 0:
             for arg in args:
                 if not isinstance(arg, list):
                     raise TypeError('Row wasn\'t a list')
@@ -17,23 +22,65 @@ class Matrix(object):
                     raise InconsistentRows('weird length')
                 else:
                     good_length = arg_length
-            self.mn = (good_length, len(args))
-            self.values = [arg for arg in args]
+            self.mn = (len(args), good_length)
+            self.values = list(args)
         else:
-            self.mn = kwargs.pop('size')
+            self.mn = kwargs.pop('size', (0, 0))
             if not isinstance(self.mn, tuple) or len(self.mn) != 2 \
                     or not isinstance(self.mn[0], int) or not isinstance(self.mn[1], int):
                 raise TypeError('size must be tuple of two integers')
-            type = kwargs.pop('type', None)
+            type = kwargs.pop('type', 'zero')
             if type == 'identity':
-                self.values = [[1 if i == j else 0 for i in range(self.mn[0])] for j in range(self.mn[1])]
+                self.values = [[1 if i == j else 0 for i in range(self.mn[1])] for j in range(self.mn[0])]
             elif type == 'zero':
-                self.values = [[0 for i in range(self.mn[0])] for j in range(self.mn[1])]
+                self.values = [[0 for i in range(self.mn[1])] for j in range(self.mn[0])]
 
     @property
     def size(self):
         return self.mn
 
+    @property
+    def valid(self):
+        return True
+
+    def check_valid_operation(self, matrix, op='multi'):
+        if op == 'multi':
+            pass
+        elif op == 'add/sub':
+            pass
+        elif op == 'invert':
+            pass
+        return True
+
+    def valid_matrix(self, matrix):
+        if not isinstance(matrix, self.__class__) and matrix.valid:
+            raise InvalidMatrix("{} passed into {} ".format(matrix, self))
+        return True
+
     def times(self, matrix):
-        "Post multiply by another matrix"
-        pass
+        """Post multiply by another matrix"""
+        self.valid_matrix(matrix)
+        # self.check_valid_operation(matrix, op='multi')
+
+        # first rows
+        m = self.mn[0]
+        # first columns
+        n = self.mn[1]
+        if n != matrix.mn[0]:
+            raise BadDimensions('inner dimensions must match')
+        # second matrix columns
+        p = matrix.mn[1]
+        new_mtx = Matrix(size=(m, p), type='zero')
+
+        for xm in range(0, m):
+            for xp in range(0, p):
+                for xn in range(0, n):
+                    new_mtx[xm][xp] += self[xm][xn] * matrix[xn][xp]
+
+        # return matrix
+        return new_mtx
+
+    def __getitem__(self, index):
+        return self.values[index]
+
+
