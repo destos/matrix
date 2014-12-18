@@ -57,7 +57,7 @@ class Matrix(object):
             raise InvalidMatrix("{} passed into {} ".format(matrix, self))
         return True
 
-    def times(self, matrix):
+    def __mul__(self, matrix):
         """Post multiply by another matrix"""
         self.valid_matrix(matrix)
         # self.check_valid_operation(matrix, op='multi')
@@ -80,7 +80,38 @@ class Matrix(object):
         # return matrix
         return new_mtx
 
+    def __add__(self, matrix):
+        self.valid_matrix(matrix)
+        if self.mn[0] != matrix.mn[0] or self.mn[1] != matrix.mn[1]:
+            raise BadDimensions('dimensions must match')
+
+        new_mtx = Matrix(size=self.mn)
+        (m, n) = self.mn
+
+        for xm in range(0, m):
+            for xn in range(0, n):
+                new_mtx[xm][xn] = self[xm][xn] + matrix[xm][xn]
+
+        return new_mtx
+
+    def __neg__(self):
+        self.valid_matrix(self)
+
+        new_mtx = Matrix(size=self.mn)
+        (m, n) = self.mn
+
+        for xm in range(0, m):
+            for xn in range(0, n):
+                new_mtx[xm][xn] = -self[xm][xn]
+
+        return new_mtx
+
+    def __sub__(self, matrix):
+        return self + (-matrix)
+
     def __getitem__(self, index):
+        """
+        Look up a particular row and column in the matrix
+        matrix[1][3]
+        """
         return self.values[index]
-
-
