@@ -32,15 +32,15 @@ class MatrixTest(TestCase):
         self.assertEqual(mtx.size, (4, 5))
 
     def test_size_not_tuple(self):
-        with self.assertRaises(TypeError):
+        with self.assertRaises(BadDimensions):
             Matrix(size=False)
-        with self.assertRaises(TypeError):
+        with self.assertRaises(BadDimensions):
             Matrix(size=(1, 2, 3))
-        with self.assertRaises(TypeError):
+        with self.assertRaises(BadDimensions):
             Matrix(size='tssssdf')
-        with self.assertRaises(TypeError):
+        with self.assertRaises(BadDimensions):
             Matrix(size=('dl', 'd'))
-        with self.assertRaises(TypeError):
+        with self.assertRaises(BadDimensions):
             Matrix(size=('dl', 1))
 
     def test_identity_matrix_init(self):
@@ -168,3 +168,27 @@ class MatrixTest(TestCase):
         res = mtx1 - mtx2
         self.mox.VerifyAll()
         self.assertEqual(res, 'returned')
+
+    def test_transpose(self):
+        mtx = Matrix([6, 4], [2, 4], [1, 1])
+
+        res = mtx.transpose()
+
+        self.assertNotEqual(res.values, mtx.values)
+        self.assertEqual(res.values, [[6, 2, 1], [4, 4, 1]])
+
+    def test_equality_good(self):
+        # Equality tests could be be better
+
+        mtx1 = Matrix([6, 4], [2, 4])
+        mtx2 = Matrix([6, 4], [2, 4])
+
+        res = (mtx1 == mtx2)
+        self.assertTrue(res)
+
+    def test_equality_bad(self):
+        mtx1 = Matrix([6, 2], [2, 4])
+        mtx2 = Matrix([6, 4], [4, 4])
+
+        res = (mtx1 == mtx2)
+        self.assertFalse(res)
