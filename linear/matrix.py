@@ -150,3 +150,20 @@ class Matrix(object):
             for xn in range(0, n):
                 new_mtx[xn][xm] = self[xm][xn]
         return new_mtx
+
+    def det(self):
+        (m, n) = self.mn
+        # Take each element eliminate it's row and column, multiply that
+        # element by the determinate that is left.
+        if m == 2 and n == 2:
+            return self.values[0][0] * self.values[1][1] - self.values[0][1] * self.values[1][0]
+        else:
+            dets = []
+            for i, c in enumerate(self.values[0]):
+                mtx = Matrix(size=(m - 1, n - 1))
+                # Iterate through rows
+                for jfrom in range(1, n):
+                    mtx.values[jfrom - 1] = [v for vi, v in enumerate(self.values[jfrom]) if vi != i]
+                dets.append(mtx.det() * c * (1 if i % 2 == 0 else -1))
+            return sum(dets)
+
